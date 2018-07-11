@@ -16,7 +16,6 @@ Features:
 
     - A WebKit2 viewport
     - An input box to change the URI or to search the current page
-    - Built-in launching of suckless' tabbed
     - Built-in download manager
     - Indicator for web feeds
     - Optimized hotkeys: Left hand on keyboard, right hand on mouse

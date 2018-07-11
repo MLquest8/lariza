@@ -1,13 +1,11 @@
-.TH lariza 1 "2020-03-11" "lariza" "User Commands"
+.TH lariza 1 "2020-04-24" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza \- simple web browser
 .\" --------------------------------------------------------------------
 .SH SYNOPSIS
 \fBlariza\fP
-[\fB\-e\fP \fIwid\fP]
 [\fB\-C\fP]
-[\fB\-T\fP]
 [\fIURI ...\fP]
 .\" --------------------------------------------------------------------
 .SH DESCRIPTION
@@ -17,15 +15,8 @@ lariza \- simple web browser
 In addition to the standard arguments of GTK+ 3, \fBlariza\fP knows
 about the following options:
 .TP
-\fB\-e\fP \fIwid\fP
-Embeds the main window and all newly created windows in the window
-specified by \fIwid\fP. The download manager is always a \(lqpopup\(rq.
-.TP
 \fB\-C\fP
 Disables cooperative instances.
-.TP
-\fB\-T\fP
-Disables automatic launching of suckless' \fBtabbed\fP(1).
 .P
 After these options there can be any number of URIs. If no URIs are
 given, $\fBLARIZA_HOME_URI\fP will be opened.
@@ -117,5 +108,4 @@ handler. See \fBlariza.usage\fP(1) for details.
 was started in June 2014.
 .\" --------------------------------------------------------------------
 .SH "SEE ALSO"
-.BR lariza.usage (1),
-.BR tabbed (1).
+.BR lariza.usage (1).

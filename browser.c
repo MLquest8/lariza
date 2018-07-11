@@ -51,7 +51,6 @@ static gboolean remote_msg(GIOChannel *, GIOCondition, gpointer);
 static void run_user_scripts(WebKitWebView *);
 static void search(gpointer, gint);
 static void show_web_view(WebKitWebView *, gpointer);
-static Window tabbed_launch(void);
 static void trust_user_certs(WebKitWebContext *);
 
 
@@ -81,7 +80,6 @@ static gboolean cooperative_instances = TRUE;
 static int cooperative_pipe_fp = 0;
 static gchar *download_dir = "/var/tmp";
 static gboolean enable_console_to_stdout = FALSE;
-static Window embed = 0;
 static gchar *fifo_suffix = "main";
 static gdouble global_zoom = 1.0;
 static gchar *history_file = NULL;
@@ -89,7 +87,6 @@ static gchar *home_uri = "about:blank";
 static gboolean initial_wc_setup_done = FALSE;
 static GHashTable *keywords = NULL;
 static gchar *search_text = NULL;
-static gboolean tabbed_automagic = TRUE;
 static gchar *user_agent = NULL;
 
 
@@ -138,18 +135,6 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     {
         fprintf(stderr, __NAME__": fatal: calloc failed\n");
         exit(EXIT_FAILURE);
-    }
-
-    if (embed != 0)
-    {
-        c->win = gtk_plug_new(embed);
-        if (!gtk_plug_get_embedded(GTK_PLUG(c->win)))
-        {
-            fprintf(stderr, __NAME__": Can't plug-in to XID %ld.\n", embed);
-            gtk_widget_destroy(c->win);
-            c->win = NULL;
-            embed = 0;
-        }
     }
 
     if (c->win == NULL)
@@ -1192,46 +1177,6 @@ show_web_view(WebKitWebView *web_view, gpointer data)
     gtk_widget_show_all(c->win);
 }
 
-Window
-tabbed_launch(void)
-{
-    gint tabbed_stdout;
-    GIOChannel *tabbed_stdout_channel;
-    GError *err = NULL;
-    gchar *output = NULL;
-    char *argv[] = { "tabbed", "-c", "-d", "-p", "s1", "-n", __NAME__, NULL };
-    Window plug_into;
-
-    if (!g_spawn_async_with_pipes(NULL, argv, NULL, G_SPAWN_SEARCH_PATH, NULL,
-                                  NULL, NULL, NULL, &tabbed_stdout, NULL,
-                                  &err))
-    {
-        fprintf(stderr, __NAME__": Could not launch tabbed: %s\n", err->message);
-        g_error_free(err);
-        return 0;
-    }
-
-    tabbed_stdout_channel = g_io_channel_unix_new(tabbed_stdout);
-    if (tabbed_stdout_channel == NULL)
-    {
-        fprintf(stderr, __NAME__": Could open tabbed's stdout\n");
-        return 0;
-    }
-    g_io_channel_read_line(tabbed_stdout_channel, &output, NULL, NULL, NULL);
-    g_io_channel_shutdown(tabbed_stdout_channel, FALSE, NULL);
-    if (output == NULL)
-    {
-        fprintf(stderr, __NAME__": Could not read XID from tabbed\n");
-        return 0;
-    }
-    g_strstrip(output);
-    plug_into = strtol(output, NULL, 16);
-    g_free(output);
-    if (plug_into == 0)
-        fprintf(stderr, __NAME__": The XID from tabbed is 0\n");
-    return plug_into;
-}
-
 void
 trust_user_certs(WebKitWebContext *wc)
 {
@@ -1272,19 +1217,12 @@ main(int argc, char **argv)
 
     grab_environment_configuration();
 
-    while ((opt = getopt(argc, argv, "e:CT")) != -1)
+    while ((opt = getopt(argc, argv, "C")) != -1)
     {
         switch (opt)
         {
-            case 'e':
-                embed = atol(optarg);
-                tabbed_automagic = FALSE;
-                break;
             case 'C':
                 cooperative_instances = FALSE;
-                break;
-            case 'T':
-                tabbed_automagic = FALSE;
                 break;
             default:
                 fprintf(stderr, "Usage: "__NAME__" [OPTION]... [URI]...\n");
@@ -1296,9 +1234,6 @@ main(int argc, char **argv)
     if (cooperative_instances)
         cooperation_setup();
     downloadmanager_setup();
-
-    if (tabbed_automagic && !(cooperative_instances && !cooperative_alone))
-        embed = tabbed_launch();
 
     if (!cooperative_instances || cooperative_alone)
     {

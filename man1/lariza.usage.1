@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-04-17" "lariza" "User Commands"
+.TH lariza 1 "2020-04-24" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -222,22 +222,6 @@ restart \fBlariza\fP.
 Note: This is NOT equal to certificate pinning. WebKit ignores
 user-specified certificates if the server's certificate can be validated
 by any system-wide CA.
-.\" --------------------------------------------------------------------
-.SH "USING LARIZA WITH TABBED"
-By default, \fBlariza\fP automatically launches an instance of suckless'
-\fBtabbed\fP(1).
-.P
-You can turn this feature off (see command line arguments) or you can
-specify a command line argument to embed \fBlariza\fP into an arbitrary
-container (XEMBED). Note that \fBlariza\fP will also automatically embed
-new windows in the same container.
-.P
-When using the automatically launched \fBtabbed\fP(1) instance, you
-can't use \fBtabbed\fP(1)'s \fBCtrl + Shift + Return\fP hotkey. This is
-because \fBtabbed\fP(1) is launched with \fB\-d\fP, so it knows nothing
-about \fBlariza\fP. However, \fBlariza\fP provides its own hotkey to
-launch a new window which will be embedded in the same instance of
-\fBtabbed\fP(1).
 .\" --------------------------------------------------------------------
 .SH "WEBKIT LOCAL STORAGE"
 WebKit does create files in your $\fBXDG_*\fP directories, i.e.
