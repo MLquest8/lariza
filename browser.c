@@ -14,8 +14,8 @@
 #include <JavaScriptCore/JavaScript.h>
 
 
+static gboolean button_tablabel(GtkWidget *, GdkEvent *, gpointer);
 static void client_destroy(GtkWidget *, gpointer);
-static gboolean client_destroy_request(WebKitWebView *, gpointer);
 static WebKitWebView *client_new(const gchar *, WebKitWebView *, gboolean);
 static WebKitWebView *client_new_request(WebKitWebView *, WebKitNavigationAction *,
                                          gpointer);
@@ -44,6 +44,9 @@ static gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
 static gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
 static void keywords_load(void);
 static gboolean keywords_try_search(WebKitWebView *, const gchar *);
+static void mainwindow_setup(void);
+static void mainwindow_title(gint);
+static void mainwindow_title_before(GtkNotebook *, GtkWidget *, guint, gpointer);
 static gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
                               WebKitHitTestResult *, gpointer);
 static gboolean quit_if_nothing_active(void);
@@ -60,10 +63,16 @@ struct Client
     gchar *hover_uri;
     gchar *feed_html;
     GtkWidget *location;
+    GtkWidget *tablabel;
     GtkWidget *vbox;
     GtkWidget *web_view;
-    GtkWidget *win;
 };
+
+struct MainWindow
+{
+    GtkWidget *win;
+    GtkWidget *notebook;
+} mw;
 
 struct DownloadManager
 {
@@ -90,28 +99,40 @@ static gchar *search_text = NULL;
 static gchar *user_agent = NULL;
 
 
+gboolean
+button_tablabel(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    if (event->type == GDK_BUTTON_RELEASE)
+    {
+        switch (((GdkEventButton *)event)->button)
+        {
+            case 2:
+                client_destroy(NULL, data);
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 void
 client_destroy(GtkWidget *widget, gpointer data)
 {
     struct Client *c = (struct Client *)data;
+    gint idx;
 
     g_signal_handlers_disconnect_by_func(G_OBJECT(c->web_view),
                                          changed_load_progress, c);
+
+    idx = gtk_notebook_page_num(GTK_NOTEBOOK(mw.notebook), c->vbox);
+    if (idx == -1)
+        fprintf(stderr, __NAME__": Tab index was -1, bamboozled\n");
+    else
+        gtk_notebook_remove_page(GTK_NOTEBOOK(mw.notebook), idx);
 
     free(c);
     clients--;
 
     quit_if_nothing_active();
-}
-
-gboolean
-client_destroy_request(WebKitWebView *web_view, gpointer data)
-{
-    struct Client *c = (struct Client *)data;
-
-    gtk_widget_destroy(c->win);
-
-    return TRUE;
 }
 
 WebKitWebView *
@@ -120,6 +141,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     struct Client *c;
     WebKitWebContext *wc;
     gchar *f;
+    GtkWidget *evbox;
 
     if (uri != NULL && cooperative_instances && !cooperative_alone)
     {
@@ -136,14 +158,6 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
         fprintf(stderr, __NAME__": fatal: calloc failed\n");
         exit(EXIT_FAILURE);
     }
-
-    if (c->win == NULL)
-        c->win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-    gtk_window_set_default_size(GTK_WINDOW(c->win), 800, 600);
-
-    g_signal_connect(G_OBJECT(c->win), "destroy", G_CALLBACK(client_destroy), c);
-    gtk_window_set_title(GTK_WINDOW(c->win), __NAME__);
 
     if (related_wv == NULL)
         c->web_view = webkit_web_view_new();
@@ -163,7 +177,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     g_signal_connect(G_OBJECT(c->web_view), "context-menu",
                      G_CALLBACK(menu_web_view), c);
     g_signal_connect(G_OBJECT(c->web_view), "close",
-                     G_CALLBACK(client_destroy_request), c);
+                     G_CALLBACK(client_destroy), c);
     g_signal_connect(G_OBJECT(c->web_view), "decide-policy",
                      G_CALLBACK(decide_policy), NULL);
     g_signal_connect(G_OBJECT(c->web_view), "key-press-event",
@@ -217,7 +231,22 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     gtk_box_pack_start(GTK_BOX(c->vbox), c->location, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(c->vbox), c->web_view, TRUE, TRUE, 0);
 
-    gtk_container_add(GTK_CONTAINER(c->win), c->vbox);
+    c->tablabel = gtk_label_new(__NAME__);
+    gtk_label_set_ellipsize(GTK_LABEL(c->tablabel), PANGO_ELLIPSIZE_END);
+    gtk_label_set_width_chars(GTK_LABEL(c->tablabel), 20);
+
+    evbox = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(evbox), c->tablabel);
+    g_signal_connect(G_OBJECT(evbox), "button-release-event",
+                     G_CALLBACK(button_tablabel), c);
+
+    /* This only shows the event box and the label inside, nothing else.
+     * Needed because the evbox/label is "internal" to the notebook and
+     * not part of the normal "widget tree" (IIUC). */
+    gtk_widget_show_all(evbox);
+
+    gtk_notebook_append_page(GTK_NOTEBOOK(mw.notebook), c->vbox, evbox);
+    gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(mw.notebook), c->vbox, TRUE);
 
     if (show)
         show_web_view(NULL, c);
@@ -377,7 +406,8 @@ changed_title(GObject *obj, GParamSpec *pspec, gpointer data)
     t = t == NULL ? u : t;
     t = t[0] == 0 ? u : t;
 
-    gtk_window_set_title(GTK_WINDOW(c->win), t);
+    gtk_label_set_text(GTK_LABEL(c->tablabel), t);
+    mainwindow_title(-1);
 }
 
 void
@@ -798,7 +828,7 @@ key_common(GtkWidget *widget, GdkEvent *event, gpointer data)
             switch (((GdkEventKey *)event)->keyval)
             {
                 case GDK_KEY_q:  /* close window (left hand) */
-                    gtk_widget_destroy(c->win);
+                    client_destroy(NULL, c);
                     return TRUE;
                 case GDK_KEY_w:  /* home (left hand) */
                     f = ensure_uri_scheme(home_uri);
@@ -1038,6 +1068,52 @@ keywords_try_search(WebKitWebView *web_view, const gchar *t)
     return ret;
 }
 
+void
+mainwindow_setup(void)
+{
+    mw.win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_default_size(GTK_WINDOW(mw.win), 800, 600);
+    g_signal_connect(G_OBJECT(mw.win), "destroy", gtk_main_quit, NULL);
+    gtk_window_set_title(GTK_WINDOW(mw.win), __NAME__);
+
+    mw.notebook = gtk_notebook_new();
+    gtk_notebook_set_scrollable(GTK_NOTEBOOK(mw.notebook), TRUE);
+    gtk_container_add(GTK_CONTAINER(mw.win), mw.notebook);
+    g_signal_connect(G_OBJECT(mw.notebook), "switch-page",
+                     G_CALLBACK(mainwindow_title_before), NULL);
+
+    /* XXX Global hotkeys to change tabs are missing */
+}
+
+void
+mainwindow_title_before(GtkNotebook *nb, GtkWidget *p, guint idx, gpointer data)
+{
+    mainwindow_title(idx);
+}
+
+void
+mainwindow_title(gint idx)
+{
+    GtkWidget *child, *evbox, *label;
+    const gchar *text;
+
+    if (idx == -1)
+    {
+        idx = gtk_notebook_get_current_page(GTK_NOTEBOOK(mw.notebook));
+        if (idx == -1)
+            return;
+    }
+
+    child = gtk_notebook_get_nth_page(GTK_NOTEBOOK(mw.notebook), idx);
+    if (child == NULL)
+        return;
+
+    evbox = gtk_notebook_get_tab_label(GTK_NOTEBOOK(mw.notebook), child);
+    label = gtk_bin_get_child(GTK_BIN(evbox));
+    text = gtk_label_get_text(GTK_LABEL(label));
+    gtk_window_set_title(GTK_WINDOW(mw.win), text);
+}
+
 gboolean
 menu_web_view(WebKitWebView *web_view, WebKitContextMenu *menu, GdkEvent *ev,
               WebKitHitTestResult *ht, gpointer data)
@@ -1170,11 +1246,17 @@ void
 show_web_view(WebKitWebView *web_view, gpointer data)
 {
     struct Client *c = (struct Client *)data;
+    gint idx;
 
     (void)web_view;
 
+    gtk_widget_show_all(mw.win);
+
+    idx = gtk_notebook_page_num(GTK_NOTEBOOK(mw.notebook), c->vbox);
+    if (idx != -1)
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(mw.notebook), idx);
+
     gtk_widget_grab_focus(c->web_view);
-    gtk_widget_show_all(c->win);
 }
 
 void
@@ -1234,6 +1316,8 @@ main(int argc, char **argv)
     if (cooperative_instances)
         cooperation_setup();
     downloadmanager_setup();
+
+    mainwindow_setup();
 
     if (!cooperative_instances || cooperative_alone)
     {
