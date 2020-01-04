@@ -48,6 +48,7 @@ static gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
                               WebKitHitTestResult *, gpointer);
 static gboolean quit_if_nothing_active(void);
 static gboolean remote_msg(GIOChannel *, GIOCondition, gpointer);
+static void run_user_scripts(WebKitWebView *);
 static void search(gpointer, gint);
 static void show_web_view(WebKitWebView *, gpointer);
 static Window tabbed_launch(void);
@@ -372,6 +373,8 @@ changed_load_progress(GObject *obj, GParamSpec *pspec, gpointer data)
         webkit_web_view_run_javascript(WEBKIT_WEB_VIEW(c->web_view),
                                        grab_feeds, NULL,
                                        grab_feeds_finished, c);
+
+        run_user_scripts(WEBKIT_WEB_VIEW(c->web_view));
     }
     gtk_entry_set_progress_fraction(GTK_ENTRY(c->location), p);
 }
@@ -1125,6 +1128,36 @@ remote_msg(GIOChannel *channel, GIOCondition condition, gpointer data)
         g_free(uri);
     }
     return TRUE;
+}
+
+void
+run_user_scripts(WebKitWebView *web_view)
+{
+    gchar *base = NULL, *path = NULL, *contents = NULL;
+    const gchar *entry = NULL;
+    GDir *scriptdir = NULL;
+
+    base = g_build_filename(g_get_user_config_dir(), __NAME__, "scripts", NULL);
+    scriptdir = g_dir_open(base, 0, NULL);
+    if (scriptdir != NULL)
+    {
+        while ((entry = g_dir_read_name(scriptdir)) != NULL)
+        {
+            path = g_build_filename(base, entry, NULL);
+            if (g_str_has_suffix(path, ".js"))
+            {
+                if (g_file_get_contents(path, &contents, NULL, NULL))
+                {
+                    webkit_web_view_run_javascript(web_view, contents, NULL, NULL, NULL);
+                    g_free(contents);
+                }
+            }
+            g_free(path);
+        }
+        g_dir_close(scriptdir);
+    }
+
+    g_free(base);
 }
 
 void
