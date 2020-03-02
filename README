@@ -24,6 +24,7 @@ Features:
     - Global content zoom
     - Cooperative instances using FIFOs
     - Certificate trust store
+    - You can run user-supplied JavaScripts
     - Bundled web extensions:
         - Adblock
 
@@ -66,16 +67,6 @@ Background information
   requests but please don't be upset if I turn them down -- which might
   happen if it's a feature that I simply don't need. That being said,
   you should have a look at the PATCHES file. :-)
-
-  Especially, it's very likely that lariza will never have a "follow
-  mode" like dwb, luakit or others have. I've used these browsers for
-  quite some time and I've also used Firefox extensions that add a
-  "follow mode". The point is, "follow mode" doesn't work anymore. This
-  was a good thing ten years ago. Today, a lot of websites make heavy
-  use of JavaScript or hovering. You NEED some kind of pointing device.
-  I found using "follow mode" to be very frustrating today, because you
-  still have to reach for the mouse all the time. So, you might as well
-  just optimize your mousing workflow.
 
   lariza does not compete with powerful browsers like dwb or luakit, nor
   with monstrous applications like Firefox or Chromium. lariza won't
