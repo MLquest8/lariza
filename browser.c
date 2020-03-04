@@ -216,6 +216,8 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     if (enable_webgl)
         webkit_settings_set_enable_webgl(webkit_web_view_get_settings(WEBKIT_WEB_VIEW(c->web_view)), TRUE);
 
+    webkit_settings_set_enable_developer_extras(webkit_web_view_get_settings(WEBKIT_WEB_VIEW(c->web_view)), TRUE);
+
     c->location = gtk_entry_new();
     g_signal_connect(G_OBJECT(c->location), "key-press-event",
                      G_CALLBACK(key_location), c);

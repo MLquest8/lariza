@@ -1,6 +1,10 @@
 Release history for lariza
 
 next
+  [Changed]
+  - "enable-developer-extras" is now always set to "TRUE". This enables
+    the Web Inspector.
+
   [Added]
   - User-supplied JavaScript files can be put into
     ~/.config/lariza/scripts.
