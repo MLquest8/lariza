@@ -80,7 +80,6 @@ static gboolean cooperative_alone = TRUE;
 static gboolean cooperative_instances = TRUE;
 static int cooperative_pipe_fp = 0;
 static gchar *download_dir = "/var/tmp";
-static gboolean enable_webgl = FALSE;
 static gboolean enable_console_to_stdout = FALSE;
 static Window embed = 0;
 static gchar *fifo_suffix = "main";
@@ -212,9 +211,6 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
 
     if (enable_console_to_stdout)
         webkit_settings_set_enable_write_console_messages_to_stdout(webkit_web_view_get_settings(WEBKIT_WEB_VIEW(c->web_view)), TRUE);
-
-    if (enable_webgl)
-        webkit_settings_set_enable_webgl(webkit_web_view_get_settings(WEBKIT_WEB_VIEW(c->web_view)), TRUE);
 
     webkit_settings_set_enable_developer_extras(webkit_web_view_get_settings(WEBKIT_WEB_VIEW(c->web_view)), TRUE);
 
@@ -652,10 +648,6 @@ grab_environment_configuration(void)
     e = g_getenv(__NAME_UPPERCASE__"_ENABLE_CONSOLE_TO_STDOUT");
     if (e != NULL)
         enable_console_to_stdout = TRUE;
-
-    e = g_getenv(__NAME_UPPERCASE__"_ENABLE_EXPERIMENTAL_WEBGL");
-    if (e != NULL)
-        enable_webgl = TRUE;
 
     e = g_getenv(__NAME_UPPERCASE__"_FIFO_SUFFIX");
     if (e != NULL)

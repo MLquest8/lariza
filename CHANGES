@@ -4,6 +4,8 @@ next
   [Changed]
   - "enable-developer-extras" is now always set to "TRUE". This enables
     the Web Inspector.
+  - WebGL is enabled in WebKit by default these days. lariza's
+    environment variable $LARIZA_ENABLE_EXPERIMENTAL_WEBGL is gone.
 
   [Added]
   - User-supplied JavaScript files can be put into
