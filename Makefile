@@ -44,7 +44,7 @@ install: all installdirs
 		$(DESTDIR)$(man1dir)/$(__NAME__).usage.1
 	$(INSTALL_PROGRAM) we_adblock.so \
 		$(DESTDIR)$(libdir)/$(__NAME__)/web_extensions/we_adblock.so
-	$(INSTALL_PROGRAM) user-scripts/hints.js \
+	$(INSTALL_DATA) user-scripts/hints.js \
 		$(DESTDIR)$(datadir)/$(__NAME__)/user-scripts/hints.js
 
 installdirs:
