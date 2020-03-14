@@ -1131,7 +1131,7 @@ run_user_scripts(WebKitWebView *web_view)
     const gchar *entry = NULL;
     GDir *scriptdir = NULL;
 
-    base = g_build_filename(g_get_user_config_dir(), __NAME__, "scripts", NULL);
+    base = g_build_filename(g_get_user_config_dir(), __NAME__, "user-scripts", NULL);
     scriptdir = g_dir_open(base, 0, NULL);
     if (scriptdir != NULL)
     {

@@ -10,7 +10,7 @@ next
 
   [Added]
   - User-supplied JavaScript files can be put into
-    ~/.config/lariza/scripts. "hints.js" is one such script, it's
+    ~/.config/lariza/user-scripts. "hints.js" is one such script, it's
     bundled with the main application, but must be activated manually.
 
 v19.05  2019-05-05
