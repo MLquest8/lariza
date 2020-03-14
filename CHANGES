@@ -2,6 +2,7 @@ Release history for lariza
 
 next
   [Changed]
+  - Makefile: Web extensions and user scripts will be installed.
   - "enable-developer-extras" is now always set to "TRUE". This enables
     the Web Inspector.
   - WebGL is enabled in WebKit by default these days. lariza's
@@ -9,7 +10,8 @@ next
 
   [Added]
   - User-supplied JavaScript files can be put into
-    ~/.config/lariza/scripts.
+    ~/.config/lariza/scripts. "hints.js" is one such script, it's
+    bundled with the main application, but must be activated manually.
 
 v19.05  2019-05-05
   [Fixed]
