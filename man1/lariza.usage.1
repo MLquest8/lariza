@@ -1,4 +1,4 @@
-.TH lariza 1 "2015-11-28" "lariza" "User Commands"
+.TH lariza 1 "2020-03-14" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -6,41 +6,6 @@ lariza.usage \- extended usage hints
 .SH DESCRIPTION
 \fBlariza\fP is a simple web browser using GTK+ 3, GLib and WebKit2GTK+.
 This manpage contains additional hints and pointers regarding its usage.
-.\" --------------------------------------------------------------------
-.SH "BUNDLED WEB EXTENSIONS"
-On startup, WebKit checks \fI~/.local/share/lariza/web_extensions\fP for
-any \fB.so\fP files. See
-.UR http://\:blogs.igalia.com/\:carlosgc/\:2013/\:09/\:10/\:webkit2gtk-\:web-\:process-\:extensions/
-this blog post
-.UE
-for further information on these extensions.
-.P
-\fBlariza\fP comes with the following extensions:
-.TP
-\fBwe_adblock.so\fP
-Generic adblock. Reads patterns from the file
-\fI~/.config/lariza/adblock.black\fP. Each line can contain a regular
-expression. These expressions match case-insensitive and partially, i.e.
-\fB.*foo.*\fP is the same as \fB.*FOO.*\fP and you can use anchors like
-\fB^https?://...\fP. Please refer to
-.UR https://\:developer.\:gnome.\:org/\:glib/\:stable/\:glib-\:regex-\:syntax.html
-the GLib reference
-.UE
-for more details. Lines starting with \fB#\fP are ignored.
-.P
-Those bundled web extensions are automatically compiled when you run
-\fBmake\fP. To use them, though, make sure to copy them to the directory
-mentioned above.
-.\" --------------------------------------------------------------------
-.SH "DOWNLOAD MANAGER"
-Open the download manager using the appropriate hotkey. A new window
-listing your downloads will appear. Clicking on an item will remove it
-from the list and \(em if needed \(em cancel the download.
-.P
-There's no file manager integration, nor does \fBlariza\fP delete,
-overwrite or resume downloads. If a file already exists, it won't be
-touched. Instead, the new file name will have a suffix such as \fB.1\fP,
-\fB.2\fP, \fB.3\fP, and so on.
 .\" --------------------------------------------------------------------
 .SH "HOTKEYS"
 .SS "Global hotkeys"
@@ -132,6 +97,16 @@ Close the download manager. Active downloads are never aborted. However,
 if there are no more active downloads and no more browsing windows, then
 the entire program will quit.
 .\" --------------------------------------------------------------------
+.SH "DOWNLOAD MANAGER"
+Open the download manager using the appropriate hotkey. A new window
+listing your downloads will appear. Clicking on an item will remove it
+from the list and \(em if needed \(em cancel the download.
+.P
+There's no file manager integration, nor does \fBlariza\fP delete,
+overwrite or resume downloads. If a file already exists, it won't be
+touched. Instead, the new file name will have a suffix such as \fB.1\fP,
+\fB.2\fP, \fB.3\fP, and so on.
+.\" --------------------------------------------------------------------
 .SH "KEYWORD BASED SEARCHING"
 In this file, you can configure keywords and the associated URIs:
 \fI~/.config\:/lariza\:/keywordsearch\fP. Each line has to look like
@@ -158,32 +133,30 @@ said page.
 During development, you will most likely want to run \fBlariza\fP with
 $\fBLARIZA_ENABLE_CONSOLE_TO_STDOUT\fP enabled.
 .\" --------------------------------------------------------------------
-.SH "TRUSTED CERTIFICATES"
-By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit, i.e. by
-your GnuTLS installation. If you wish to trust additional certificates,
-such as self-signed certificates, the first thing you should do is try
-to add the appropriate CAs to your system-wide store.
+.SH "WEB EXTENSIONS"
+On startup, WebKit checks \fI~/.local/share/lariza/web_extensions\fP for
+any \fB.so\fP files. See
+.UR http://\:blogs.igalia.com/\:carlosgc/\:2013/\:09/\:10/\:webkit2gtk-\:web-\:process-\:extensions/
+this blog post
+.UE
+for further information on these extensions.
 .P
-If you wish to add simple exceptions, you can grab the certificate and
-store it in the directory \fI~/.config/lariza/certs\fP. The filename
-must be equal to the hostname:
+\fBlariza\fP comes with the following extensions:
+.TP
+\fBwe_adblock.so\fP
+Generic adblock. Reads patterns from the file
+\fI~/.config/lariza/adblock.black\fP. Each line can contain a regular
+expression. These expressions match case-insensitive and partially, i.e.
+\fB.*foo.*\fP is the same as \fB.*FOO.*\fP and you can use anchors like
+\fB^https?://...\fP. Please refer to
+.UR https://\:developer.\:gnome.\:org/\:glib/\:stable/\:glib-\:regex-\:syntax.html
+the GLib reference
+.UE
+for more details. Lines starting with \fB#\fP are ignored.
 .P
-.\f(CW
-.nf
-\&$ echo | openssl s_client -connect foo.de:443 | openssl x509 >foo.de
-.fi
-\fP
-.P
-This tells \fBlariza\fP to trust the given certificate when connecting
-to host \fBfoo.de\fP.
-.P
-You can reload these certificates at runtime by pressing the appropriate
-hotkey. Note that removed certificates will be kept in memory until you
-restart \fBlariza\fP.
-.P
-Note: This is NOT equal to certificate pinning. WebKit ignores
-user-specified certificates if the server's certificate can be validated
-by any system-wide CA.
+Those bundled web extensions are automatically compiled when you run
+\fBmake\fP. To use them, though, make sure to copy them to the directory
+mentioned above.
 .\" --------------------------------------------------------------------
 .SH "EXTERNAL URI HANDLER"
 \fBlariza\fP can launch an executable called
@@ -211,6 +184,33 @@ This mechanism allows you to implement a variety of functions. You might
 want to implement a bookmarking script or a password manager or you
 might simply load the current URI in a different browser. That's up to
 you.
+.\" --------------------------------------------------------------------
+.SH "TRUSTED CERTIFICATES"
+By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit, i.e. by
+your GnuTLS installation. If you wish to trust additional certificates,
+such as self-signed certificates, the first thing you should do is try
+to add the appropriate CAs to your system-wide store.
+.P
+If you wish to add simple exceptions, you can grab the certificate and
+store it in the directory \fI~/.config/lariza/certs\fP. The filename
+must be equal to the hostname:
+.P
+.\f(CW
+.nf
+\&$ echo | openssl s_client -connect foo.de:443 | openssl x509 >foo.de
+.fi
+\fP
+.P
+This tells \fBlariza\fP to trust the given certificate when connecting
+to host \fBfoo.de\fP.
+.P
+You can reload these certificates at runtime by pressing the appropriate
+hotkey. Note that removed certificates will be kept in memory until you
+restart \fBlariza\fP.
+.P
+Note: This is NOT equal to certificate pinning. WebKit ignores
+user-specified certificates if the server's certificate can be validated
+by any system-wide CA.
 .\" --------------------------------------------------------------------
 .SH "USING LARIZA WITH TABBED"
 By default, \fBlariza\fP automatically launches an instance of suckless'
