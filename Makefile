@@ -10,9 +10,11 @@ INSTALL_DATA = $(INSTALL) -m 644
 prefix = /usr/local
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
+libdir = $(exec_prefix)/lib
 datarootdir = $(prefix)/share
 mandir = $(datarootdir)/man
 man1dir = $(mandir)/man1
+datadir = $(prefix)/share
 
 
 .PHONY: all clean install installdirs
@@ -40,9 +42,15 @@ install: all installdirs
 	$(INSTALL_DATA) man1/$(__NAME__).1 $(DESTDIR)$(man1dir)/$(__NAME__).1
 	$(INSTALL_DATA) man1/$(__NAME__).usage.1 \
 		$(DESTDIR)$(man1dir)/$(__NAME__).usage.1
+	$(INSTALL_PROGRAM) we_adblock.so \
+		$(DESTDIR)$(libdir)/$(__NAME__)/web_extensions/we_adblock.so
+	$(INSTALL_PROGRAM) user-scripts/hints.js \
+		$(DESTDIR)$(datadir)/$(__NAME__)/user-scripts/hints.js
 
 installdirs:
-	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(man1dir)
+	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(man1dir) \
+		$(DESTDIR)$(libdir)/$(__NAME__)/web_extensions \
+		$(DESTDIR)$(datadir)/$(__NAME__)/user-scripts
 
 clean:
 	rm -f $(__NAME__) we_adblock.so
