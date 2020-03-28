@@ -24,8 +24,9 @@ Features:
     - Global content zoom
     - Cooperative instances using FIFOs
     - Certificate trust store
-    - You can run user-supplied JavaScripts
-    - Bundled web extensions:
+    - Bundled user-supplied JavaScripts (optional):
+        - Link hints
+    - Bundled web extensions (optional):
         - Adblock
 
 
