@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-03-14" "lariza" "User Commands"
+.TH lariza 1 "2020-04-17" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -174,7 +174,7 @@ make sure to link them to the directory mentioned above.
 \fIlariza-external-handler\fP. It will be passed the \(lqselected\(rq
 URI as a command line argument:
 .P
-.\f(CW
+\f(CW
 .nf
 $ lariza-external-handler -u https://github.com
 .fi
@@ -197,16 +197,16 @@ might simply load the current URI in a different browser. That's up to
 you.
 .\" --------------------------------------------------------------------
 .SH "TRUSTED CERTIFICATES"
-By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit, i.e. by
-your GnuTLS installation. If you wish to trust additional certificates,
-such as self-signed certificates, the first thing you should do is try
-to add the appropriate CAs to your system-wide store.
+By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit, i.e.
+by your GnuTLS installation. If you wish to trust additional
+certificates, such as self-signed certificates, the first thing you
+should do is try to add the appropriate CAs to your system-wide store.
 .P
 If you wish to add simple exceptions, you can grab the certificate and
 store it in the directory \fI~/.config/lariza/certs\fP. The filename
 must be equal to the hostname:
 .P
-.\f(CW
+\f(CW
 .nf
 \&$ echo | openssl s_client -connect foo.de:443 | openssl x509 >foo.de
 .fi

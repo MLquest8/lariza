@@ -1,5 +1,9 @@
 Release history for lariza
 
+next
+  [Fixed]
+  - Minor fixes to manpages.
+
 v20.03  2020-03-28
   [Changed]
   - Makefile: Web extensions and user scripts will be installed.
