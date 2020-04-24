@@ -872,6 +872,12 @@ key_common(GtkWidget *widget, GdkEvent *event, gpointer data)
                         webkit_web_view_get_uri(WEBKIT_WEB_VIEW(c->web_view)));
                     external_handler_run(NULL, NULL, c);
                     return TRUE;
+                case GDK_KEY_a:  /* go one tab to the left (left hand) */
+                    gtk_notebook_prev_page(GTK_NOTEBOOK(mw.notebook));
+                    return TRUE;
+                case GDK_KEY_s:  /* go one tab to the right (left hand) */
+                    gtk_notebook_next_page(GTK_NOTEBOOK(mw.notebook));
+                    return TRUE;
             }
         }
         /* navigate backward (left hand) */
@@ -1081,8 +1087,6 @@ mainwindow_setup(void)
     gtk_container_add(GTK_CONTAINER(mw.win), mw.notebook);
     g_signal_connect(G_OBJECT(mw.notebook), "switch-page",
                      G_CALLBACK(mainwindow_title_before), NULL);
-
-    /* XXX Global hotkeys to change tabs are missing */
 }
 
 void
