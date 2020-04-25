@@ -96,6 +96,7 @@ static gchar *home_uri = "about:blank";
 static gboolean initial_wc_setup_done = FALSE;
 static GHashTable *keywords = NULL;
 static gchar *search_text = NULL;
+static GtkPositionType tab_pos = GTK_POS_TOP;
 static gchar *user_agent = NULL;
 
 
@@ -676,6 +677,19 @@ grab_environment_configuration(void)
     if (e != NULL)
         home_uri = g_strdup(e);
 
+    e = g_getenv(__NAME_UPPERCASE__"_TAB_POS");
+    if (e != NULL)
+    {
+        if (strcmp(e, "top") == 0)
+            tab_pos = GTK_POS_TOP;
+        if (strcmp(e, "right") == 0)
+            tab_pos = GTK_POS_RIGHT;
+        if (strcmp(e, "bottom") == 0)
+            tab_pos = GTK_POS_BOTTOM;
+        if (strcmp(e, "left") == 0)
+            tab_pos = GTK_POS_LEFT;
+    }
+
     e = g_getenv(__NAME_UPPERCASE__"_USER_AGENT");
     if (e != NULL)
         user_agent = g_strdup(e);
@@ -1084,6 +1098,7 @@ mainwindow_setup(void)
 
     mw.notebook = gtk_notebook_new();
     gtk_notebook_set_scrollable(GTK_NOTEBOOK(mw.notebook), TRUE);
+    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(mw.notebook), tab_pos);
     gtk_container_add(GTK_CONTAINER(mw.win), mw.notebook);
     g_signal_connect(G_OBJECT(mw.notebook), "switch-page",
                      G_CALLBACK(mainwindow_title_before), NULL);
