@@ -97,6 +97,7 @@ static gboolean initial_wc_setup_done = FALSE;
 static GHashTable *keywords = NULL;
 static gchar *search_text = NULL;
 static GtkPositionType tab_pos = GTK_POS_TOP;
+static gint tab_width_chars = 20;
 static gchar *user_agent = NULL;
 
 
@@ -234,7 +235,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
 
     c->tablabel = gtk_label_new(__NAME__);
     gtk_label_set_ellipsize(GTK_LABEL(c->tablabel), PANGO_ELLIPSIZE_END);
-    gtk_label_set_width_chars(GTK_LABEL(c->tablabel), 20);
+    gtk_label_set_width_chars(GTK_LABEL(c->tablabel), tab_width_chars);
 
     evbox = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(evbox), c->tablabel);
@@ -689,6 +690,10 @@ grab_environment_configuration(void)
         if (strcmp(e, "left") == 0)
             tab_pos = GTK_POS_LEFT;
     }
+
+    e = g_getenv(__NAME_UPPERCASE__"_TAB_WIDTH_CHARS");
+    if (e != NULL)
+        tab_width_chars = atoi(e);
 
     e = g_getenv(__NAME_UPPERCASE__"_USER_AGENT");
     if (e != NULL)
