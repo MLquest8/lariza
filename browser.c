@@ -1158,6 +1158,8 @@ mainwindow_title_before(GtkNotebook *nb, GtkWidget *p, guint idx, gpointer data)
     mainwindow_title(idx);
 }
 
+/* XXX I'd like to avoid traversing the widget hierarchy. Find a better
+ * way. */
 void
 mainwindow_title(gint idx)
 {
