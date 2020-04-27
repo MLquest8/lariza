@@ -245,7 +245,10 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     gtk_label_set_ellipsize(GTK_LABEL(c->tablabel), PANGO_ELLIPSIZE_END);
     gtk_label_set_width_chars(GTK_LABEL(c->tablabel), tab_width_chars);
 
-    tabbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    /* XXX I don't own a HiDPI screen, so I don't know if scale_factor
+     * does the right thing. */
+    tabbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,
+                         5 * gtk_widget_get_scale_factor(mw.win));
     gtk_box_pack_start(GTK_BOX(tabbox), c->tabicon, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(tabbox), c->tablabel, TRUE, TRUE, 0);
 
