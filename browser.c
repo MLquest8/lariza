@@ -16,7 +16,8 @@
 
 static gboolean button_tablabel(GtkWidget *, GdkEvent *, gpointer);
 static void client_destroy(GtkWidget *, gpointer);
-static WebKitWebView *client_new(const gchar *, WebKitWebView *, gboolean);
+static WebKitWebView *client_new(const gchar *, WebKitWebView *, gboolean,
+                                 gboolean);
 static WebKitWebView *client_new_request(WebKitWebView *, WebKitNavigationAction *,
                                          gpointer);
 static void cooperation_setup(void);
@@ -68,6 +69,7 @@ struct Client
     GtkWidget *tablabel;
     GtkWidget *vbox;
     GtkWidget *web_view;
+    gboolean focus_new_tab;
 };
 
 struct MainWindow
@@ -140,7 +142,8 @@ client_destroy(GtkWidget *widget, gpointer data)
 }
 
 WebKitWebView *
-client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
+client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
+           gboolean focus_tab)
 {
     struct Client *c;
     WebKitWebContext *wc;
@@ -162,6 +165,8 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
         fprintf(stderr, __NAME__": fatal: calloc failed\n");
         exit(EXIT_FAILURE);
     }
+
+    c->focus_new_tab = focus_tab;
 
     if (related_wv == NULL)
         c->web_view = webkit_web_view_new();
@@ -262,7 +267,8 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
      * not part of the normal "widget tree" (IIUC). */
     gtk_widget_show_all(evbox);
 
-    gtk_notebook_append_page(GTK_NOTEBOOK(mw.notebook), c->vbox, evbox);
+    gtk_notebook_insert_page(GTK_NOTEBOOK(mw.notebook), c->vbox, evbox,
+                             gtk_notebook_get_current_page(GTK_NOTEBOOK(mw.notebook)) + 1);
     gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(mw.notebook), c->vbox, TRUE);
 
     if (show)
@@ -287,7 +293,7 @@ WebKitWebView *
 client_new_request(WebKitWebView *web_view,
                    WebKitNavigationAction *navigation_action, gpointer data)
 {
-    return client_new(NULL, web_view, FALSE);
+    return client_new(NULL, web_view, FALSE, FALSE);
 }
 
 void
@@ -904,7 +910,7 @@ key_common(GtkWidget *widget, GdkEvent *event, gpointer data)
                     return TRUE;
                 case GDK_KEY_e:  /* new tab (left hand) */
                     f = ensure_uri_scheme(home_uri);
-                    client_new(f, NULL, TRUE);
+                    client_new(f, NULL, TRUE, TRUE);
                     g_free(f);
                     return TRUE;
                 case GDK_KEY_r:  /* reload (left hand) */
@@ -1052,7 +1058,7 @@ key_web_view(GtkWidget *widget, GdkEvent *event, gpointer data)
             case 2:
                 if (c->hover_uri != NULL)
                 {
-                    client_new(c->hover_uri, NULL, TRUE);
+                    client_new(c->hover_uri, NULL, TRUE, FALSE);
                     return TRUE;
                 }
                 break;
@@ -1258,7 +1264,7 @@ remote_msg(GIOChannel *channel, GIOCondition condition, gpointer data)
     if (uri)
     {
         g_strstrip(uri);
-        client_new(uri, NULL, TRUE);
+        client_new(uri, NULL, TRUE, FALSE);
         g_free(uri);
     }
     return TRUE;
@@ -1331,11 +1337,14 @@ show_web_view(WebKitWebView *web_view, gpointer data)
 
     gtk_widget_show_all(mw.win);
 
-    idx = gtk_notebook_page_num(GTK_NOTEBOOK(mw.notebook), c->vbox);
-    if (idx != -1)
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(mw.notebook), idx);
+    if (c->focus_new_tab)
+    {
+        idx = gtk_notebook_page_num(GTK_NOTEBOOK(mw.notebook), c->vbox);
+        if (idx != -1)
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(mw.notebook), idx);
 
-    gtk_widget_grab_focus(c->web_view);
+        gtk_widget_grab_focus(c->web_view);
+    }
 }
 
 void
@@ -1408,11 +1417,11 @@ main(int argc, char **argv)
     }
 
     if (optind >= argc)
-        client_new(home_uri, NULL, TRUE);
+        client_new(home_uri, NULL, TRUE, TRUE);
     else
     {
         for (i = optind; i < argc; i++)
-            client_new(argv[i], NULL, TRUE);
+            client_new(argv[i], NULL, TRUE, TRUE);
     }
 
     if (!cooperative_instances || cooperative_alone)
