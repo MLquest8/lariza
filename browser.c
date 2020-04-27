@@ -22,6 +22,7 @@ static WebKitWebView *client_new_request(WebKitWebView *, WebKitNavigationAction
 static void cooperation_setup(void);
 static void changed_download_progress(GObject *, GParamSpec *, gpointer);
 static void changed_load_progress(GObject *, GParamSpec *, gpointer);
+static void changed_favicon(GObject *, GParamSpec *, gpointer);
 static void changed_title(GObject *, GParamSpec *, gpointer);
 static void changed_uri(GObject *, GParamSpec *, gpointer);
 static gboolean crashed_web_view(WebKitWebView *, gpointer);
@@ -63,6 +64,7 @@ struct Client
     gchar *hover_uri;
     gchar *feed_html;
     GtkWidget *location;
+    GtkWidget *tabicon;
     GtkWidget *tablabel;
     GtkWidget *vbox;
     GtkWidget *web_view;
@@ -143,7 +145,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     struct Client *c;
     WebKitWebContext *wc;
     gchar *f;
-    GtkWidget *evbox;
+    GtkWidget *evbox, *tabbox;
 
     if (uri != NULL && cooperative_instances && !cooperative_alone)
     {
@@ -168,6 +170,8 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     wc = webkit_web_view_get_context(WEBKIT_WEB_VIEW(c->web_view));
 
     webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(c->web_view), global_zoom);
+    g_signal_connect(G_OBJECT(c->web_view), "notify::favicon",
+                     G_CALLBACK(changed_favicon), c);
     g_signal_connect(G_OBJECT(c->web_view), "notify::title",
                      G_CALLBACK(changed_title), c);
     g_signal_connect(G_OBJECT(c->web_view), "notify::uri",
@@ -203,6 +207,8 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
 
         trust_user_certs(wc);
 
+        webkit_web_context_set_favicon_database_directory(wc, NULL);
+
         initial_wc_setup_done = TRUE;
     }
 
@@ -233,12 +239,18 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     gtk_box_pack_start(GTK_BOX(c->vbox), c->location, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(c->vbox), c->web_view, TRUE, TRUE, 0);
 
+    c->tabicon = gtk_image_new_from_icon_name("text-html", GTK_ICON_SIZE_LARGE_TOOLBAR);
+
     c->tablabel = gtk_label_new(__NAME__);
     gtk_label_set_ellipsize(GTK_LABEL(c->tablabel), PANGO_ELLIPSIZE_END);
     gtk_label_set_width_chars(GTK_LABEL(c->tablabel), tab_width_chars);
 
+    tabbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start(GTK_BOX(tabbox), c->tabicon, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(tabbox), c->tablabel, TRUE, TRUE, 0);
+
     evbox = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(evbox), c->tablabel);
+    gtk_container_add(GTK_CONTAINER(evbox), tabbox);
     g_signal_connect(G_OBJECT(evbox), "button-release-event",
                      G_CALLBACK(button_tablabel), c);
 
@@ -391,6 +403,29 @@ changed_load_progress(GObject *obj, GParamSpec *pspec, gpointer data)
         run_user_scripts(WEBKIT_WEB_VIEW(c->web_view));
     }
     gtk_entry_set_progress_fraction(GTK_ENTRY(c->location), p);
+}
+
+void
+changed_favicon(GObject *obj, GParamSpec *pspec, gpointer data)
+{
+    struct Client *c = (struct Client *)data;
+    cairo_surface_t *f;
+    int w, h;
+    GdkPixbuf *pb;
+
+    f = webkit_web_view_get_favicon(WEBKIT_WEB_VIEW(c->web_view));
+    if (f != NULL)
+    {
+        w = cairo_image_surface_get_width(f);
+        h = cairo_image_surface_get_height(f);
+        pb = gdk_pixbuf_get_from_surface(f, 0, 0, w, h);
+        if (pb != NULL)
+        {
+            /* TODO: Resize icon */
+            gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb);
+            g_object_unref(pb);
+        }
+    }
 }
 
 void
@@ -1118,7 +1153,8 @@ mainwindow_title_before(GtkNotebook *nb, GtkWidget *p, guint idx, gpointer data)
 void
 mainwindow_title(gint idx)
 {
-    GtkWidget *child, *evbox, *label;
+    GtkWidget *child, *tabbox, *evbox, *label;
+    GList *tabbox_children, *last;
     const gchar *text;
 
     if (idx == -1)
@@ -1133,9 +1169,13 @@ mainwindow_title(gint idx)
         return;
 
     evbox = gtk_notebook_get_tab_label(GTK_NOTEBOOK(mw.notebook), child);
-    label = gtk_bin_get_child(GTK_BIN(evbox));
+    tabbox = gtk_bin_get_child(GTK_BIN(evbox));
+    tabbox_children = gtk_container_get_children(GTK_CONTAINER(tabbox));
+    last = g_list_last(tabbox_children);
+    label = last->data;
     text = gtk_label_get_text(GTK_LABEL(label));
     gtk_window_set_title(GTK_WINDOW(mw.win), text);
+    g_list_free(tabbox_children);
 }
 
 gboolean
