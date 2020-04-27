@@ -417,7 +417,12 @@ changed_favicon(GObject *obj, GParamSpec *pspec, gpointer data)
     GdkPixbuf *pb, *pb_scaled;
 
     f = webkit_web_view_get_favicon(WEBKIT_WEB_VIEW(c->web_view));
-    if (f != NULL)
+    if (f == NULL)
+    {
+        gtk_image_set_from_icon_name(GTK_IMAGE(c->tabicon), "text-html",
+                                     GTK_ICON_SIZE_SMALL_TOOLBAR);
+    }
+    else
     {
         w = cairo_image_surface_get_width(f);
         h = cairo_image_surface_get_height(f);
