@@ -47,8 +47,6 @@ static gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
 static void keywords_load(void);
 static gboolean keywords_try_search(WebKitWebView *, const gchar *);
 static void mainwindow_setup(void);
-static void mainwindow_title(gint);
-static void mainwindow_title_before(GtkNotebook *, GtkWidget *, guint, gpointer);
 static gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
                               WebKitHitTestResult *, gpointer);
 static gboolean quit_if_nothing_active(void);
@@ -249,6 +247,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
     c->tablabel = gtk_label_new(__NAME__);
     gtk_label_set_ellipsize(GTK_LABEL(c->tablabel), PANGO_ELLIPSIZE_END);
     gtk_label_set_width_chars(GTK_LABEL(c->tablabel), tab_width_chars);
+    gtk_widget_set_has_tooltip(c->tablabel, TRUE);
 
     /* XXX I don't own a HiDPI screen, so I don't know if scale_factor
      * does the right thing. */
@@ -463,7 +462,7 @@ changed_title(GObject *obj, GParamSpec *pspec, gpointer data)
     t = t[0] == 0 ? u : t;
 
     gtk_label_set_text(GTK_LABEL(c->tablabel), t);
-    mainwindow_title(-1);
+    gtk_widget_set_tooltip_text(c->tablabel, t);
 }
 
 void
@@ -1159,44 +1158,6 @@ mainwindow_setup(void)
     gtk_notebook_set_scrollable(GTK_NOTEBOOK(mw.notebook), TRUE);
     gtk_notebook_set_tab_pos(GTK_NOTEBOOK(mw.notebook), tab_pos);
     gtk_container_add(GTK_CONTAINER(mw.win), mw.notebook);
-    g_signal_connect(G_OBJECT(mw.notebook), "switch-page",
-                     G_CALLBACK(mainwindow_title_before), NULL);
-}
-
-void
-mainwindow_title_before(GtkNotebook *nb, GtkWidget *p, guint idx, gpointer data)
-{
-    mainwindow_title(idx);
-}
-
-/* XXX I'd like to avoid traversing the widget hierarchy. Find a better
- * way. */
-void
-mainwindow_title(gint idx)
-{
-    GtkWidget *child, *tabbox, *evbox, *label;
-    GList *tabbox_children, *last;
-    const gchar *text;
-
-    if (idx == -1)
-    {
-        idx = gtk_notebook_get_current_page(GTK_NOTEBOOK(mw.notebook));
-        if (idx == -1)
-            return;
-    }
-
-    child = gtk_notebook_get_nth_page(GTK_NOTEBOOK(mw.notebook), idx);
-    if (child == NULL)
-        return;
-
-    evbox = gtk_notebook_get_tab_label(GTK_NOTEBOOK(mw.notebook), child);
-    tabbox = gtk_bin_get_child(GTK_BIN(evbox));
-    tabbox_children = gtk_container_get_children(GTK_CONTAINER(tabbox));
-    last = g_list_last(tabbox_children);
-    label = last->data;
-    text = gtk_label_get_text(GTK_LABEL(label));
-    gtk_window_set_title(GTK_WINDOW(mw.win), text);
-    g_list_free(tabbox_children);
 }
 
 gboolean
