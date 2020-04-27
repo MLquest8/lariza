@@ -1264,7 +1264,7 @@ remote_msg(GIOChannel *channel, GIOCondition condition, gpointer data)
     if (uri)
     {
         g_strstrip(uri);
-        client_new(uri, NULL, TRUE, FALSE);
+        client_new(uri, NULL, TRUE, TRUE);
         g_free(uri);
     }
     return TRUE;
