@@ -410,8 +410,8 @@ changed_favicon(GObject *obj, GParamSpec *pspec, gpointer data)
 {
     struct Client *c = (struct Client *)data;
     cairo_surface_t *f;
-    int w, h;
-    GdkPixbuf *pb;
+    int w, h, w_scaled, h_scaled;
+    GdkPixbuf *pb, *pb_scaled;
 
     f = webkit_web_view_get_favicon(WEBKIT_WEB_VIEW(c->web_view));
     if (f != NULL)
@@ -421,8 +421,18 @@ changed_favicon(GObject *obj, GParamSpec *pspec, gpointer data)
         pb = gdk_pixbuf_get_from_surface(f, 0, 0, w, h);
         if (pb != NULL)
         {
-            /* TODO: Resize icon */
-            gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb);
+            if (w > 16 || h > 16)
+            {
+                w_scaled = 16 * gtk_widget_get_scale_factor(c->tabicon);
+                h_scaled = 16 * gtk_widget_get_scale_factor(c->tabicon);
+                pb_scaled = gdk_pixbuf_scale_simple(pb, w_scaled, h_scaled,
+                                                    GDK_INTERP_BILINEAR);
+                gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb_scaled);
+                g_object_unref(pb_scaled);
+            }
+            else
+                gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb);
+
             g_object_unref(pb);
         }
     }
