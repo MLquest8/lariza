@@ -413,7 +413,7 @@ changed_favicon(GObject *obj, GParamSpec *pspec, gpointer data)
 {
     struct Client *c = (struct Client *)data;
     cairo_surface_t *f;
-    int w, h, w_scaled, h_scaled;
+    int w, h, w_should, h_should;
     GdkPixbuf *pb, *pb_scaled;
 
     f = webkit_web_view_get_favicon(WEBKIT_WEB_VIEW(c->web_view));
@@ -424,18 +424,13 @@ changed_favicon(GObject *obj, GParamSpec *pspec, gpointer data)
         pb = gdk_pixbuf_get_from_surface(f, 0, 0, w, h);
         if (pb != NULL)
         {
-            if (w > 16 || h > 16)
-            {
-                w_scaled = 16 * gtk_widget_get_scale_factor(c->tabicon);
-                h_scaled = 16 * gtk_widget_get_scale_factor(c->tabicon);
-                pb_scaled = gdk_pixbuf_scale_simple(pb, w_scaled, h_scaled,
-                                                    GDK_INTERP_BILINEAR);
-                gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb_scaled);
-                g_object_unref(pb_scaled);
-            }
-            else
-                gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb);
+            w_should = 16 * gtk_widget_get_scale_factor(c->tabicon);
+            h_should = 16 * gtk_widget_get_scale_factor(c->tabicon);
+            pb_scaled = gdk_pixbuf_scale_simple(pb, w_should, h_should,
+                                                GDK_INTERP_BILINEAR);
+            gtk_image_set_from_pixbuf(GTK_IMAGE(c->tabicon), pb_scaled);
 
+            g_object_unref(pb_scaled);
             g_object_unref(pb);
         }
     }
