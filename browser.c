@@ -239,7 +239,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show)
     gtk_box_pack_start(GTK_BOX(c->vbox), c->location, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(c->vbox), c->web_view, TRUE, TRUE, 0);
 
-    c->tabicon = gtk_image_new_from_icon_name("text-html", GTK_ICON_SIZE_LARGE_TOOLBAR);
+    c->tabicon = gtk_image_new_from_icon_name("text-html", GTK_ICON_SIZE_SMALL_TOOLBAR);
 
     c->tablabel = gtk_label_new(__NAME__);
     gtk_label_set_ellipsize(GTK_LABEL(c->tablabel), PANGO_ELLIPSIZE_END);
