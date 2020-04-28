@@ -14,47 +14,47 @@
 #include <JavaScriptCore/JavaScript.h>
 
 
-static gboolean button_tablabel(GtkWidget *, GdkEvent *, gpointer);
-static void client_destroy(GtkWidget *, gpointer);
-static WebKitWebView *client_new(const gchar *, WebKitWebView *, gboolean,
-                                 gboolean);
-static WebKitWebView *client_new_request(WebKitWebView *, WebKitNavigationAction *,
-                                         gpointer);
-static void cooperation_setup(void);
-static void changed_download_progress(GObject *, GParamSpec *, gpointer);
-static void changed_load_progress(GObject *, GParamSpec *, gpointer);
-static void changed_favicon(GObject *, GParamSpec *, gpointer);
-static void changed_title(GObject *, GParamSpec *, gpointer);
-static void changed_uri(GObject *, GParamSpec *, gpointer);
-static gboolean crashed_web_view(WebKitWebView *, gpointer);
-static gboolean decide_policy(WebKitWebView *, WebKitPolicyDecision *,
-                              WebKitPolicyDecisionType, gpointer);
-static gboolean download_handle(WebKitDownload *, gchar *, gpointer);
-static void download_handle_start(WebKitWebView *, WebKitDownload *, gpointer);
-static void downloadmanager_cancel(GtkToolButton *, gpointer);
-static gboolean downloadmanager_delete(GtkWidget *, gpointer);
-static void downloadmanager_setup(void);
-static gchar *ensure_uri_scheme(const gchar *);
-static void external_handler_run(GSimpleAction *, GVariant *, gpointer);
-static void grab_environment_configuration(void);
-static void grab_feeds_finished(GObject *, GAsyncResult *, gpointer);
-static void hover_web_view(WebKitWebView *, WebKitHitTestResult *, guint, gpointer);
-static void icon_location(GtkEntry *, GtkEntryIconPosition, GdkEvent *, gpointer);
-static gboolean key_common(GtkWidget *, GdkEvent *, gpointer);
-static gboolean key_downloadmanager(GtkWidget *, GdkEvent *, gpointer);
-static gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
-static gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
-static void keywords_load(void);
-static gboolean keywords_try_search(WebKitWebView *, const gchar *);
-static void mainwindow_setup(void);
-static gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
-                              WebKitHitTestResult *, gpointer);
-static gboolean quit_if_nothing_active(void);
-static gboolean remote_msg(GIOChannel *, GIOCondition, gpointer);
-static void run_user_scripts(WebKitWebView *);
-static void search(gpointer, gint);
-static void show_web_view(WebKitWebView *, gpointer);
-static void trust_user_certs(WebKitWebContext *);
+gboolean button_tablabel(GtkWidget *, GdkEvent *, gpointer);
+void client_destroy(GtkWidget *, gpointer);
+WebKitWebView *client_new(const gchar *, WebKitWebView *, gboolean,
+                          gboolean);
+WebKitWebView *client_new_request(WebKitWebView *, WebKitNavigationAction *,
+                                  gpointer);
+void cooperation_setup(void);
+void changed_download_progress(GObject *, GParamSpec *, gpointer);
+void changed_load_progress(GObject *, GParamSpec *, gpointer);
+void changed_favicon(GObject *, GParamSpec *, gpointer);
+void changed_title(GObject *, GParamSpec *, gpointer);
+void changed_uri(GObject *, GParamSpec *, gpointer);
+gboolean crashed_web_view(WebKitWebView *, gpointer);
+gboolean decide_policy(WebKitWebView *, WebKitPolicyDecision *,
+                       WebKitPolicyDecisionType, gpointer);
+gboolean download_handle(WebKitDownload *, gchar *, gpointer);
+void download_handle_start(WebKitWebView *, WebKitDownload *, gpointer);
+void downloadmanager_cancel(GtkToolButton *, gpointer);
+gboolean downloadmanager_delete(GtkWidget *, gpointer);
+void downloadmanager_setup(void);
+gchar *ensure_uri_scheme(const gchar *);
+void external_handler_run(GSimpleAction *, GVariant *, gpointer);
+void grab_environment_configuration(void);
+void grab_feeds_finished(GObject *, GAsyncResult *, gpointer);
+void hover_web_view(WebKitWebView *, WebKitHitTestResult *, guint, gpointer);
+void icon_location(GtkEntry *, GtkEntryIconPosition, GdkEvent *, gpointer);
+gboolean key_common(GtkWidget *, GdkEvent *, gpointer);
+gboolean key_downloadmanager(GtkWidget *, GdkEvent *, gpointer);
+gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
+gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
+void keywords_load(void);
+gboolean keywords_try_search(WebKitWebView *, const gchar *);
+void mainwindow_setup(void);
+gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
+                       WebKitHitTestResult *, gpointer);
+gboolean quit_if_nothing_active(void);
+gboolean remote_msg(GIOChannel *, GIOCondition, gpointer);
+void run_user_scripts(WebKitWebView *);
+void search(gpointer, gint);
+void show_web_view(WebKitWebView *, gpointer);
+void trust_user_certs(WebKitWebContext *);
 
 
 struct Client
@@ -84,23 +84,23 @@ struct DownloadManager
 } dm;
 
 
-static const gchar *accepted_language[2] = { NULL, NULL };
-static gint clients = 0, downloads = 0;
-static gboolean cooperative_alone = TRUE;
-static gboolean cooperative_instances = TRUE;
-static int cooperative_pipe_fp = 0;
-static gchar *download_dir = "/var/tmp";
-static gboolean enable_console_to_stdout = FALSE;
-static gchar *fifo_suffix = "main";
-static gdouble global_zoom = 1.0;
-static gchar *history_file = NULL;
-static gchar *home_uri = "about:blank";
-static gboolean initial_wc_setup_done = FALSE;
-static GHashTable *keywords = NULL;
-static gchar *search_text = NULL;
-static GtkPositionType tab_pos = GTK_POS_TOP;
-static gint tab_width_chars = 20;
-static gchar *user_agent = NULL;
+const gchar *accepted_language[2] = { NULL, NULL };
+gint clients = 0, downloads = 0;
+gboolean cooperative_alone = TRUE;
+gboolean cooperative_instances = TRUE;
+int cooperative_pipe_fp = 0;
+gchar *download_dir = "/var/tmp";
+gboolean enable_console_to_stdout = FALSE;
+gchar *fifo_suffix = "main";
+gdouble global_zoom = 1.0;
+gchar *history_file = NULL;
+gchar *home_uri = "about:blank";
+gboolean initial_wc_setup_done = FALSE;
+GHashTable *keywords = NULL;
+gchar *search_text = NULL;
+GtkPositionType tab_pos = GTK_POS_TOP;
+gint tab_width_chars = 20;
+gchar *user_agent = NULL;
 
 
 gboolean
