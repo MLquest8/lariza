@@ -14,7 +14,6 @@
 #include <JavaScriptCore/JavaScript.h>
 
 
-gboolean button_tablabel(GtkWidget *, GdkEvent *, gpointer);
 void client_destroy(GtkWidget *, gpointer);
 WebKitWebView *client_new(const gchar *, WebKitWebView *, gboolean,
                           gboolean);
@@ -43,6 +42,7 @@ void icon_location(GtkEntry *, GtkEntryIconPosition, GdkEvent *, gpointer);
 gboolean key_common(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_downloadmanager(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
+gboolean key_tablabel(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
 void mainwindow_setup(void);
 gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
@@ -99,21 +99,6 @@ GtkPositionType tab_pos = GTK_POS_TOP;
 gint tab_width_chars = 20;
 gchar *user_agent = NULL;
 
-
-gboolean
-button_tablabel(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-    if (event->type == GDK_BUTTON_RELEASE)
-    {
-        switch (((GdkEventButton *)event)->button)
-        {
-            case 2:
-                client_destroy(NULL, data);
-                return TRUE;
-        }
-    }
-    return FALSE;
-}
 
 void
 client_destroy(GtkWidget *widget, gpointer data)
@@ -256,7 +241,11 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
     evbox = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(evbox), tabbox);
     g_signal_connect(G_OBJECT(evbox), "button-release-event",
-                     G_CALLBACK(button_tablabel), c);
+                     G_CALLBACK(key_tablabel), c);
+
+    gtk_widget_add_events(evbox, GDK_SCROLL_MASK);
+    g_signal_connect(G_OBJECT(evbox), "scroll-event",
+                     G_CALLBACK(key_tablabel), c);
 
     /* This only shows the event box and the label inside, nothing else.
      * Needed because the evbox/label is "internal" to the notebook and
@@ -1026,6 +1015,39 @@ key_location(GtkWidget *widget, GdkEvent *event, gpointer data)
         }
     }
 
+    return FALSE;
+}
+
+gboolean
+key_tablabel(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    GdkScrollDirection direction;
+
+    if (event->type == GDK_BUTTON_RELEASE)
+    {
+        switch (((GdkEventButton *)event)->button)
+        {
+            case 2:
+                client_destroy(NULL, data);
+                return TRUE;
+        }
+    }
+    else if (event->type == GDK_SCROLL)
+    {
+        gdk_event_get_scroll_direction(event, &direction);
+        switch (direction)
+        {
+            case GDK_SCROLL_UP:
+                gtk_notebook_prev_page(GTK_NOTEBOOK(mw.notebook));
+                break;
+            case GDK_SCROLL_DOWN:
+                gtk_notebook_next_page(GTK_NOTEBOOK(mw.notebook));
+                break;
+            default:
+                break;
+        }
+        return TRUE;
+    }
     return FALSE;
 }
 
