@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-04-24" "lariza" "User Commands"
+.TH lariza 1 "2020-04-28" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -89,7 +89,7 @@ Reset zoom to $\fBLARIZA_ZOOM\fP.
 Reset the content of the location bar to the current URI.
 .TP
 \fBReturn\fP
-Commit, i.e. begin searching, do a keyword based search or open the URI.
+Commit, i.e. begin searching or open the URI.
 .P
 .SS "Download manager"
 .TP
@@ -109,23 +109,6 @@ There's no file manager integration, nor does \fBlariza\fP delete,
 overwrite or resume downloads. If a file already exists, it won't be
 touched. Instead, the new file name will have a suffix such as \fB.1\fP,
 \fB.2\fP, \fB.3\fP, and so on.
-.\" --------------------------------------------------------------------
-.SH "KEYWORD BASED SEARCHING"
-In this file, you can configure keywords and the associated URIs:
-\fI~/.config\:/lariza\:/keywordsearch\fP. Each line has to look like
-this:
-.P
-\f(CW
-.nf
-\&wi https://en.wikipedia.org/w/index.php?title=Special:Search&search=%s
-.fi
-\fP
-.P
-\fBwi\fP is the keyword, so when opening \fBwi foo\fP, \fBlariza\fP
-will search in Wikipedia. Note the \fB%s\fP at the end of the URI: This
-is where your search term will be placed.
-.P
-Lines starting with \fB#\fP are ignored.
 .\" --------------------------------------------------------------------
 .SH "USER-SUPPLIED JAVASCRIPT FILES"
 After a page has been successfully loaded, the directory

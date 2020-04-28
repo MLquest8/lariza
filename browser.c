@@ -44,8 +44,6 @@ gboolean key_common(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_downloadmanager(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
-void keywords_load(void);
-gboolean keywords_try_search(WebKitWebView *, const gchar *);
 void mainwindow_setup(void);
 gboolean menu_web_view(WebKitWebView *, WebKitContextMenu *, GdkEvent *,
                        WebKitHitTestResult *, gpointer);
@@ -96,7 +94,6 @@ gdouble global_zoom = 1.0;
 gchar *history_file = NULL;
 gchar *home_uri = "about:blank";
 gboolean initial_wc_setup_done = FALSE;
-GHashTable *keywords = NULL;
 gchar *search_text = NULL;
 GtkPositionType tab_pos = GTK_POS_TOP;
 gint tab_width_chars = 20;
@@ -1014,7 +1011,7 @@ key_location(GtkWidget *widget, GdkEvent *event, gpointer data)
                     search_text = g_strdup(t + 2);
                     search(c, 0);
                 }
-                else if (!keywords_try_search(WEBKIT_WEB_VIEW(c->web_view), t))
+                else
                 {
                     f = ensure_uri_scheme(t);
                     webkit_web_view_load_uri(WEBKIT_WEB_VIEW(c->web_view), f);
@@ -1084,66 +1081,6 @@ key_web_view(GtkWidget *widget, GdkEvent *event, gpointer data)
     }
 
     return FALSE;
-}
-
-void
-keywords_load(void)
-{
-    GError *err = NULL;
-    GIOChannel *channel = NULL;
-    gchar *path = NULL, *buf = NULL;
-    gchar **tokens = NULL;
-
-    keywords = g_hash_table_new(g_str_hash, g_str_equal);
-
-    path = g_build_filename(g_get_user_config_dir(), __NAME__, "keywordsearch",
-                            NULL);
-    channel = g_io_channel_new_file(path, "r", &err);
-    if (channel != NULL)
-    {
-        while (g_io_channel_read_line(channel, &buf, NULL, NULL, NULL)
-               == G_IO_STATUS_NORMAL)
-        {
-            g_strstrip(buf);
-            if (buf[0] != '#')
-            {
-                tokens = g_strsplit(buf, " ", 2);
-                if (tokens[0] != NULL && tokens[1] != NULL)
-                    g_hash_table_insert(keywords, g_strdup(tokens[0]),
-                                        g_strdup(tokens[1]));
-                g_strfreev(tokens);
-            }
-            g_free(buf);
-        }
-        g_io_channel_shutdown(channel, FALSE, NULL);
-    }
-    g_free(path);
-}
-
-gboolean
-keywords_try_search(WebKitWebView *web_view, const gchar *t)
-{
-    gboolean ret = FALSE;
-    gchar **tokens = NULL;
-    gchar *val = NULL, *escaped = NULL, *uri = NULL;
-
-    tokens = g_strsplit(t, " ", 2);
-    if (tokens[0] != NULL && tokens[1] != NULL)
-    {
-        val = g_hash_table_lookup(keywords, tokens[0]);
-        if (val != NULL)
-        {
-            escaped = g_uri_escape_string(tokens[1], NULL, TRUE);
-            uri = g_strdup_printf((gchar *)val, escaped);
-            webkit_web_view_load_uri(web_view, uri);
-            g_free(uri);
-            g_free(escaped);
-            ret = TRUE;
-        }
-    }
-    g_strfreev(tokens);
-
-    return ret;
 }
 
 void
@@ -1361,7 +1298,6 @@ main(int argc, char **argv)
         }
     }
 
-    keywords_load();
     if (cooperative_instances)
         cooperation_setup();
     downloadmanager_setup();
