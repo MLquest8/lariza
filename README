@@ -19,7 +19,6 @@ Features:
     - Built-in download manager
     - Indicator for web feeds
     - Optimized hotkeys: Left hand on keyboard, right hand on mouse
-    - Keyword based searching: Opening "wi foo" will search wikipedia
     - Global content zoom
     - Cooperative instances using FIFOs
     - Certificate trust store
