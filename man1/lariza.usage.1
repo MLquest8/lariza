@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-04-28" "lariza" "User Commands"
+.TH lariza 1 "2020-04-29" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -11,9 +11,6 @@ This manpage contains additional hints and pointers regarding its usage.
 .SS "Global hotkeys"
 These hotkeys work when either the location bar or the web view is being
 focused.
-.TP
-\fBMod1\fP + \fBx\fP
-Launch the external handler for the currently loaded URI.
 .TP
 \fBMod1\fP + \fBq\fP
 Close the current window. Quits the entire program if this was the last
@@ -154,33 +151,6 @@ for more details. Lines starting with \fB#\fP are ignored.
 Those bundled web extensions are automatically compiled when you run
 \fBmake\fP and installed on \fBmake install\fP. To use them, though,
 make sure to link them to the directory mentioned above.
-.\" --------------------------------------------------------------------
-.SH "EXTERNAL URI HANDLER"
-\fBlariza\fP can launch an executable called
-\fIlariza-external-handler\fP. It will be passed the \(lqselected\(rq
-URI as a command line argument:
-.P
-\f(CW
-.nf
-$ lariza-external-handler -u https://github.com
-.fi
-\fP
-.P
-This executable must be a user-supplied program. It can do anything it
-wants to with that URI. \fBlariza\fP ignores the exit code of the
-handler.
-.P
-The \fB\-u\fP will always be set. This allows you to use \fBgetopt\fP(1)
-like parameter parsing in your program.
-.P
-You can either use the appropriate hotkey (see list above) to launch the
-handler with the currently loaded URI, or you can perform a right click
-on any link, image or media file to use that URI.
-.P
-This mechanism allows you to implement a variety of functions. You might
-want to implement a bookmarking script or a password manager or you
-might simply load the current URI in a different browser. That's up to
-you.
 .\" --------------------------------------------------------------------
 .SH "TRUSTED CERTIFICATES"
 By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit, i.e.
