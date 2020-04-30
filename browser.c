@@ -44,6 +44,8 @@ gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_tablabel(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_web_view(GtkWidget *, GdkEvent *, gpointer);
 void mainwindow_setup(void);
+void mainwindow_title(gint);
+void notebook_switch_page(GtkNotebook *, GtkWidget *, guint, gpointer);
 gboolean quit_if_nothing_active(void);
 gboolean remote_msg(GIOChannel *, GIOCondition, gpointer);
 void run_user_scripts(WebKitWebView *);
@@ -241,6 +243,9 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
     gtk_widget_add_events(evbox, GDK_SCROLL_MASK);
     g_signal_connect(G_OBJECT(evbox), "scroll-event",
                      G_CALLBACK(key_tablabel), c);
+
+    /* For easy access, store a reference to our label. */
+    g_object_set_data(G_OBJECT(evbox), "lariza-tab-label", c->tablabel);
 
     /* This only shows the event box and the label inside, nothing else.
      * Needed because the evbox/label is "internal" to the notebook and
@@ -444,6 +449,7 @@ changed_title(GObject *obj, GParamSpec *pspec, gpointer data)
 
     gtk_label_set_text(GTK_LABEL(c->tablabel), t);
     gtk_widget_set_tooltip_text(c->tablabel, t);
+    mainwindow_title(gtk_notebook_get_current_page(GTK_NOTEBOOK(mw.notebook)));
 }
 
 void
@@ -1082,6 +1088,30 @@ mainwindow_setup(void)
     gtk_notebook_set_scrollable(GTK_NOTEBOOK(mw.notebook), TRUE);
     gtk_notebook_set_tab_pos(GTK_NOTEBOOK(mw.notebook), tab_pos);
     gtk_container_add(GTK_CONTAINER(mw.win), mw.notebook);
+    g_signal_connect(G_OBJECT(mw.notebook), "switch-page",
+                     G_CALLBACK(notebook_switch_page), NULL);
+}
+
+void
+mainwindow_title(gint idx)
+{
+    GtkWidget *child, *widg, *tablabel;
+    const gchar *text;
+
+    child = gtk_notebook_get_nth_page(GTK_NOTEBOOK(mw.notebook), idx);
+    if (child == NULL)
+        return;
+
+    widg = gtk_notebook_get_tab_label(GTK_NOTEBOOK(mw.notebook), child);
+    tablabel = (GtkWidget *)g_object_get_data(G_OBJECT(widg), "lariza-tab-label");
+    text = gtk_label_get_text(GTK_LABEL(tablabel));
+    gtk_window_set_title(GTK_WINDOW(mw.win), text);
+}
+
+void
+notebook_switch_page(GtkNotebook *nb, GtkWidget *p, guint idx, gpointer data)
+{
+    mainwindow_title(idx);
 }
 
 gboolean
