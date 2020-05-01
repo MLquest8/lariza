@@ -4,10 +4,10 @@
 #include <webkit2/webkit-web-extension.h>
 
 
-static GSList *adblock_patterns = NULL;
+GSList *adblock_patterns = NULL;
 
 
-static void
+void
 adblock_load(void)
 {
     GRegex *re = NULL;
@@ -45,7 +45,7 @@ adblock_load(void)
     g_free(path);
 }
 
-static gboolean
+gboolean
 web_page_send_request(WebKitWebPage *web_page, WebKitURIRequest *request,
                       WebKitURIResponse *redirected_response, gpointer user_data)
 {
@@ -64,7 +64,7 @@ web_page_send_request(WebKitWebPage *web_page, WebKitURIRequest *request,
     return FALSE;
 }
 
-static void
+void
 web_page_created_callback(WebKitWebExtension *extension, WebKitWebPage *web_page,
                           gpointer user_data)
 {
