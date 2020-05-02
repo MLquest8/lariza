@@ -38,6 +38,7 @@ void grab_environment_configuration(void);
 void grab_feeds_finished(GObject *, GAsyncResult *, gpointer);
 void hover_web_view(WebKitWebView *, WebKitHitTestResult *, guint, gpointer);
 void icon_location(GtkEntry *, GtkEntryIconPosition, GdkEvent *, gpointer);
+void init_default_web_context(void);
 gboolean key_common(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_downloadmanager(GtkWidget *, GdkEvent *, gpointer);
 gboolean key_location(GtkWidget *, GdkEvent *, gpointer);
@@ -92,7 +93,6 @@ gchar *fifo_suffix = "main";
 gdouble global_zoom = 1.0;
 gchar *history_file = NULL;
 gchar *home_uri = "about:blank";
-gboolean initial_wc_setup_done = FALSE;
 gchar *search_text = NULL;
 GtkPositionType tab_pos = GTK_POS_TOP;
 gint tab_width_chars = 20;
@@ -125,7 +125,6 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
            gboolean focus_tab)
 {
     struct Client *c;
-    WebKitWebContext *wc;
     gchar *f;
     GtkWidget *evbox, *tabbox;
 
@@ -151,7 +150,6 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
         c->web_view = webkit_web_view_new();
     else
         c->web_view = webkit_web_view_new_with_related_view(related_wv);
-    wc = webkit_web_view_get_context(WEBKIT_WEB_VIEW(c->web_view));
 
     webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(c->web_view), global_zoom);
     g_signal_connect(G_OBJECT(c->web_view), "notify::favicon",
@@ -178,21 +176,6 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
                      G_CALLBACK(hover_web_view), c);
     g_signal_connect(G_OBJECT(c->web_view), "web-process-crashed",
                      G_CALLBACK(crashed_web_view), c);
-
-    if (!initial_wc_setup_done)
-    {
-        if (accepted_language[0] != NULL)
-            webkit_web_context_set_preferred_languages(wc, accepted_language);
-
-        g_signal_connect(G_OBJECT(wc), "download-started",
-                         G_CALLBACK(download_handle_start), NULL);
-
-        trust_user_certs(wc);
-
-        webkit_web_context_set_favicon_database_directory(wc, NULL);
-
-        initial_wc_setup_done = TRUE;
-    }
 
     if (user_agent != NULL)
         g_object_set(G_OBJECT(webkit_web_view_get_settings(WEBKIT_WEB_VIEW(c->web_view))),
@@ -850,6 +833,38 @@ icon_location(GtkEntry *entry, GtkEntryIconPosition icon_pos, GdkEvent *event,
     }
 }
 
+void
+init_default_web_context(void)
+{
+    gchar *p;
+    WebKitWebContext *wc;
+
+    wc = webkit_web_context_get_default();
+
+    p = g_build_filename(g_get_user_config_dir(), __NAME__, "adblock.black", NULL);
+    webkit_web_context_set_sandbox_enabled(wc, TRUE);
+    webkit_web_context_add_path_to_sandbox(wc, p, TRUE);
+    g_free(p);
+
+    webkit_web_context_set_process_model(wc,
+        WEBKIT_PROCESS_MODEL_MULTIPLE_SECONDARY_PROCESSES);
+
+    p = g_build_filename(g_get_user_config_dir(), __NAME__, "web_extensions",
+                         NULL);
+    webkit_web_context_set_web_extensions_directory(wc, p);
+    g_free(p);
+
+    if (accepted_language[0] != NULL)
+        webkit_web_context_set_preferred_languages(wc, accepted_language);
+
+    g_signal_connect(G_OBJECT(wc), "download-started",
+                     G_CALLBACK(download_handle_start), NULL);
+
+    trust_user_certs(wc);
+
+    webkit_web_context_set_favicon_database_directory(wc, NULL);
+}
+
 gboolean
 key_common(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -1254,13 +1269,9 @@ trust_user_certs(WebKitWebContext *wc)
 int
 main(int argc, char **argv)
 {
-    gchar *c;
     int opt, i;
 
     gtk_init(&argc, &argv);
-    webkit_web_context_set_process_model(webkit_web_context_get_default(),
-        WEBKIT_PROCESS_MODEL_MULTIPLE_SECONDARY_PROCESSES);
-
     grab_environment_configuration();
 
     while ((opt = getopt(argc, argv, "C")) != -1)
@@ -1278,18 +1289,12 @@ main(int argc, char **argv)
 
     if (cooperative_instances)
         cooperation_setup();
-    downloadmanager_setup();
-
-    mainwindow_setup();
 
     if (!cooperative_instances || cooperative_alone)
-    {
-        c = g_build_filename(g_get_user_config_dir(), __NAME__, "web_extensions",
-                             NULL);
-        webkit_web_context_set_web_extensions_directory(
-            webkit_web_context_get_default(), c
-        );
-    }
+        init_default_web_context();
+
+    downloadmanager_setup();
+    mainwindow_setup();
 
     if (optind >= argc)
         client_new(home_uri, NULL, TRUE, TRUE);
@@ -1301,5 +1306,6 @@ main(int argc, char **argv)
 
     if (!cooperative_instances || cooperative_alone)
         gtk_main();
+
     exit(EXIT_SUCCESS);
 }
