@@ -632,7 +632,8 @@ ensure_uri_scheme(const gchar *t)
         !g_str_has_prefix(f, "https:") &&
         !g_str_has_prefix(f, "file:") &&
         !g_str_has_prefix(f, "about:") &&
-        !g_str_has_prefix(f, "data:"))
+        !g_str_has_prefix(f, "data:") &&
+        !g_str_has_prefix(f, "webkit:"))
     {
         g_free(f);
         fabs = realpath(t, NULL);

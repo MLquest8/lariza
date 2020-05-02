@@ -16,6 +16,9 @@ next
     to run at least WebKitGTK 2.26 (released 2019-09-09). See also:
     https://blogs.gnome.org/mcatanzaro/2020/03/31/sandboxing-webkitgtk-apps/
 
+  [Added]
+  - Allow webkit:// in URLs.
+
 v20.04  2020-04-22
   [Fixed]
   - Minor fixes to manpages.
