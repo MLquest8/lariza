@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-04-29" "lariza" "User Commands"
+.TH lariza 1 "2020-05-02" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza \- simple web browser
@@ -97,6 +97,15 @@ Directory to store user-supplied JavaScript snippets. See
 \fI~/.local\:/share\:/lariza\:/web_extensions\fP
 Sets the directory where WebKit will look for web extensions. See
 \fBlariza.usage\fP(1).
+.TP
+\fI~/.cache\:/lariza\fP
+.TQ
+\fI~/.cache\:/webkitgtk\fP
+.TQ
+\fI~/.local\:/share\:/webkitgtk\fP
+WebKitGTK will dump its caches and local storage here. It is probably
+wise to clean those directories regularly or to mount them as
+\fBtmpfs\fP(5).
 .\" --------------------------------------------------------------------
 .SH LICENSE
 \fBlariza\fP is released under the MIT license. See the accompanying

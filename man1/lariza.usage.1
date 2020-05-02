@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-04-29" "lariza" "User Commands"
+.TH lariza 1 "2020-05-02" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -178,15 +178,6 @@ restart \fBlariza\fP.
 Note: This is NOT equal to certificate pinning. WebKit ignores
 user-specified certificates if the server's certificate can be validated
 by any system-wide CA.
-.\" --------------------------------------------------------------------
-.SH "WEBKIT LOCAL STORAGE"
-WebKit does create files in your $\fBXDG_*\fP directories, i.e.
-\fI~/.local/share\fP or \fI~/.cache\fP. It's up to you what you want to
-do with this junk. I remove it regularly when no WebKit browser is
-running. Another option would be to change the $\fBXDG_*\fP variables.
-.P
-I have explicitly not turned off the local storage feature in WebKit
-because I don't know if this breaks web applications.
 .\" --------------------------------------------------------------------
 .SH "SEE ALSO"
 .BR lariza (1).
