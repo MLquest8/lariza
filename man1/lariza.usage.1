@@ -1,4 +1,4 @@
-.TH lariza 1 "2020-05-02" "lariza" "User Commands"
+.TH lariza 1 "2020-05-03" "lariza" "User Commands"
 .\" --------------------------------------------------------------------
 .SH NAME
 lariza.usage \- extended usage hints
@@ -153,10 +153,10 @@ Those bundled web extensions are automatically compiled when you run
 make sure to link them to the directory mentioned above.
 .\" --------------------------------------------------------------------
 .SH "TRUSTED CERTIFICATES"
-By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit, i.e.
-by your GnuTLS installation. If you wish to trust additional
-certificates, such as self-signed certificates, the first thing you
-should do is try to add the appropriate CAs to your system-wide store.
+By default, \fBlariza\fP trusts whatever CAs are trusted by WebKit. If
+you wish to trust additional certificates, such as self-signed
+certificates, the first thing you should do is try to add the
+appropriate CAs to your system-wide store.
 .P
 If you wish to add simple exceptions, you can grab the certificate and
 store it in the directory \fI~/.config/lariza/certs\fP. The filename
