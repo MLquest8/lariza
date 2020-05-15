@@ -1,6 +1,6 @@
 Release history for lariza
 
-next
+v20.05  2020-05-15
   [Changed]
   - lariza now uses native GTK tabs instead of relying on suckless
     tabbed. See also:
