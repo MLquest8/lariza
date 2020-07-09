@@ -1,5 +1,9 @@
 Release history for lariza
 
+next
+  [Fixed]
+  - Build no longer depends on GNU sed.
+
 v20.05  2020-05-15
   [Changed]
   - lariza now uses native GTK tabs instead of relying on suckless
