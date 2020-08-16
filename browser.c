@@ -767,28 +767,23 @@ hover_web_view(WebKitWebView *web_view, WebKitHitTestResult *ht, guint modifiers
                gpointer data)
 {
     struct Client *c = (struct Client *)data;
+    const char *to_show;
+
+    g_free(c->hover_uri);
+
+    if (webkit_hit_test_result_context_is_link(ht))
+    {
+        to_show = webkit_hit_test_result_get_link_uri(ht);
+        c->hover_uri = g_strdup(to_show);
+    }
+    else
+    {
+        to_show = webkit_web_view_get_uri(WEBKIT_WEB_VIEW(c->web_view));
+        c->hover_uri = NULL;
+    }
 
     if (!gtk_widget_is_focus(c->location))
-    {
-        if (webkit_hit_test_result_context_is_link(ht))
-        {
-            gtk_entry_set_text(GTK_ENTRY(c->location),
-                               webkit_hit_test_result_get_link_uri(ht));
-
-            if (c->hover_uri != NULL)
-                g_free(c->hover_uri);
-            c->hover_uri = g_strdup(webkit_hit_test_result_get_link_uri(ht));
-        }
-        else
-        {
-            gtk_entry_set_text(GTK_ENTRY(c->location),
-                               webkit_web_view_get_uri(WEBKIT_WEB_VIEW(c->web_view)));
-
-            if (c->hover_uri != NULL)
-                g_free(c->hover_uri);
-            c->hover_uri = NULL;
-        }
-    }
+        gtk_entry_set_text(GTK_ENTRY(c->location), to_show);
 }
 
 void

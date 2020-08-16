@@ -1,5 +1,11 @@
 Release history for lariza
 
+next
+  [Fixed]
+  - Middle-click to open in a new tab has been improved. In certain
+    conditions, the user's intention to open a new tab has been ignored
+    and URLs haven been opened in the current tab.
+
 v20.07  2020-07-19
   [Fixed]
   - Build no longer depends on GNU sed.
