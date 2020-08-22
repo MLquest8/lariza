@@ -203,6 +203,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
     c->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start(GTK_BOX(c->vbox), c->location, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(c->vbox), c->web_view, TRUE, TRUE, 0);
+    gtk_container_set_focus_child(GTK_CONTAINER(c->vbox), c->web_view);
 
     c->tabicon = gtk_image_new_from_icon_name("text-html", GTK_ICON_SIZE_SMALL_TOOLBAR);
 
