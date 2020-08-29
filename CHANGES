@@ -1,6 +1,6 @@
 Release history for lariza
 
-next
+v20.08  2020-08-29
   [Fixed]
   - Middle-click to open in a new tab has been improved. In certain
     conditions, the user's intention to open a new tab has been ignored
