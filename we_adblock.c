@@ -15,7 +15,7 @@ adblock_load(void)
     GIOChannel *channel = NULL;
     gchar *path = NULL, *buf = NULL;
 
-    path = g_build_filename(g_get_user_config_dir(), __NAME__, "adblock.black",
+    path = g_build_filename(g_get_user_config_dir(), __NAME__, "adblock",
                             NULL);
     channel = g_io_channel_new_file(path, "r", &err);
     if (channel != NULL)

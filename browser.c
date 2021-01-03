@@ -838,7 +838,7 @@ init_default_web_context(void)
 
     wc = webkit_web_context_get_default();
 
-    p = g_build_filename(g_get_user_config_dir(), __NAME__, "adblock.black", NULL);
+    p = g_build_filename(g_get_user_config_dir(), __NAME__, "adblock", NULL);
     webkit_web_context_set_sandbox_enabled(wc, TRUE);
     webkit_web_context_add_path_to_sandbox(wc, p, TRUE);
     g_free(p);

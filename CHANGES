@@ -1,5 +1,9 @@
 Release history for lariza
 
+next
+  [Changed]
+  - The file "adblock.black" has been renamed to "adblock".
+
 v20.08  2020-08-29
   [Fixed]
   - Middle-click to open in a new tab has been improved. In certain
