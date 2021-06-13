@@ -127,6 +127,7 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
     struct Client *c;
     gchar *f;
     GtkWidget *evbox, *tabbox;
+    WebKitWebContext *wc;
 
     if (uri != NULL && cooperative_instances && !cooperative_alone)
     {
@@ -150,6 +151,17 @@ client_new(const gchar *uri, WebKitWebView *related_wv, gboolean show,
         c->web_view = webkit_web_view_new();
     else
         c->web_view = webkit_web_view_new_with_related_view(related_wv);
+
+    /* XXX We have just created a new WebView with either the default
+     * WebContext (if related_wv == NULL) or a WebView with an inherited
+     * context. Still, it doesn't use the preferred languages we might
+     * have set on the default WebContext. This used to work. New bug in
+     * WebKit or changed API? */
+    if (accepted_language[0] != NULL)
+    {
+        wc = webkit_web_view_get_context(WEBKIT_WEB_VIEW(c->web_view));
+        webkit_web_context_set_preferred_languages(wc, accepted_language);
+    }
 
     webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(c->web_view), global_zoom);
     g_signal_connect(G_OBJECT(c->web_view), "notify::favicon",
@@ -850,9 +862,6 @@ init_default_web_context(void)
                          NULL);
     webkit_web_context_set_web_extensions_directory(wc, p);
     g_free(p);
-
-    if (accepted_language[0] != NULL)
-        webkit_web_context_set_preferred_languages(wc, accepted_language);
 
     g_signal_connect(G_OBJECT(wc), "download-started",
                      G_CALLBACK(download_handle_start), NULL);
